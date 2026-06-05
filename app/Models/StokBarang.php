@@ -3,31 +3,24 @@
 namespace App\Models;
 
 use App\Enums\KondisiBarang;
-use App\Enums\TipeLogBarang;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class LogBarang extends Model
+class StokBarang extends Model
 {
     use HasFactory;
 
-    protected $table = 'log_barang';
-
-    public $timestamps = false;
+    protected $table = 'stok_barang';
 
     protected $fillable = [
         'id_barang',
         'kondisi',
-        'tipe',
         'jumlah',
-        'keterangan',
     ];
 
     protected $casts = [
         'kondisi' => KondisiBarang::class,
-        'tipe' => TipeLogBarang::class,
-        'created_at' => 'datetime',
     ];
 
     public function barang(): BelongsTo

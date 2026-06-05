@@ -17,8 +17,6 @@ class BarangFactory extends Factory
      */
     public function definition(): array
     {
-        $total = rand(5, 20);
-        $kondisi = ["baik", "rusak ringan", "rusak berat"];
         $namaBarang = [
             "Laptop",
             "Proyektor",
@@ -44,10 +42,8 @@ class BarangFactory extends Factory
 
         return [
             "nama_barang" => fake()->unique()->randomElement($namaBarang),
-            "jumlah_total" => $total,
-            "jumlah_tersedia" => $total,
-            "kondisi" => $kondisi[array_rand($kondisi)],
-            "lokasi_penyimpanan" => "gudang",
+            "keterangan" => fake()->sentence(),
+            "jumlah_total" => 0,
         ];
     }
 }

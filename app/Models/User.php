@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(["name", "email", "password"])]
+#[Fillable(["nama", "email", "password"])]
 #[Hidden(["password", "remember_token"])]
 class User extends Authenticatable
 {
@@ -30,13 +30,9 @@ class User extends Authenticatable
         ];
     }
 
-    public function peminjamen()
+    public function peminjaman()
     {
-        return $this->hasMany(Peminjaman::class);
-    }
-
-    public function logBarangs()
-    {
-        return $this->hasMany(LogBarang::class);
+        return $this->hasMany(Peminjaman::class, 'id_admin');
     }
 }
+

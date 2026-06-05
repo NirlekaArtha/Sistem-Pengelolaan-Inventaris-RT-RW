@@ -18,7 +18,7 @@ class WargaFactory extends Factory
     public function definition(): array
     {
         return [
-            "nik" => fake()->unique()->numerify("################"),
+            "NIK" => fake()->unique()->numerify("################"),
             "nama" => fake()->name(),
             "alamat" => "Jl. " . fake()->streetName() . " No. " . rand(1, 100),
             "no_hp" => "08" . fake()->numerify("##########"),

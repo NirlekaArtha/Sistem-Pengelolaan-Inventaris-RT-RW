@@ -2,18 +2,17 @@
 
 namespace Database\Factories;
 
-use App\Models\LogBarang;
+use App\Models\StokBarang;
 use App\Models\Barang;
 use App\Enums\KondisiBarang;
-use App\Enums\TipeLogBarang;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<LogBarang>
+ * @extends Factory<StokBarang>
  */
-class LogBarangFactory extends Factory
+class StokBarangFactory extends Factory
 {
-    protected $model = LogBarang::class;
+    protected $model = StokBarang::class;
 
     /**
      * Define the model's default state.
@@ -29,12 +28,7 @@ class LogBarangFactory extends Factory
                 KondisiBarang::RUSAK_RINGAN,
                 KondisiBarang::RUSAK_BERAT,
             ]),
-            "tipe" => fake()->randomElement([
-                TipeLogBarang::MASUK,
-                TipeLogBarang::KELUAR,
-            ]),
-            "jumlah" => rand(1, 10),
-            "keterangan" => fake()->sentence(),
+            "jumlah" => rand(5, 50),
         ];
     }
 }

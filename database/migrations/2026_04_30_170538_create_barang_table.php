@@ -8,15 +8,13 @@ return new class extends Migration {
     /**
      * Run the migrations.
      */
-
     public function up(): void
     {
-        Schema::create("wargas", function (Blueprint $table) {
+        Schema::create('barang', function (Blueprint $table) {
             $table->id();
-            $table->string("nik")->unique();
-            $table->string("nama");
-            $table->string("alamat");
-            $table->string("no_hp");
+            $table->string('nama_barang', 150);
+            $table->text('keterangan')->nullable();
+            $table->unsignedInteger('jumlah_total')->default(0);
             $table->timestamps();
         });
     }
@@ -26,6 +24,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists("wargas");
+        Schema::dropIfExists('barang');
     }
 };

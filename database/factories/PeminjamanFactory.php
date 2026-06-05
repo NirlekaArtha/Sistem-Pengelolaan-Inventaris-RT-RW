@@ -3,6 +3,9 @@
 namespace Database\Factories;
 
 use App\Models\Peminjaman;
+use App\Models\Warga;
+use App\Models\User;
+use App\Enums\StatusPeminjaman;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,20 +20,31 @@ class PeminjamanFactory extends Factory
      */
     public function definition(): array
     {
-        $statusList = ["dipinjam", "dikembalikan", "terlambat"];
+        $statusList = [
+            StatusPeminjaman::DIPINJAM,
+            StatusPeminjaman::DIKEMBALIKAN,
+            StatusPeminjaman::TERLAMBAT,
+            StatusPeminjaman::DIKEMBALIKAN_TERLAMBAT,
+        ];
 
         $tanggalPinjam = fake()->dateTimeBetween("-30 days", "now");
         $tenggat = (clone $tanggalPinjam)->modify("+7 days");
 
         $status = $statusList[array_rand($statusList)];
-        $tanggalKembali =
-            $status !== "dipinjam"
-                ? fake()->dateTimeBetween($tanggalPinjam, "now")
-                : null;
+        
+        $tanggalKembali = null;
+        if ($status === StatusPeminjaman::DIKEMBALIKAN) {
+            $tanggalKembali = fake()->dateTimeBetween($tanggalPinjam, $tenggat);
+        } elseif ($status === StatusPeminjaman::DIKEMBALIKAN_TERLAMBAT) {
+            $tanggalKembali = fake()->dateTimeBetween($tenggat, "now");
+        } elseif ($status === StatusPeminjaman::TERLAMBAT) {
+            // still not returned but passed due date
+            $tanggalKembali = null;
+        }
 
         return [
-            "warga_id" => \App\Models\Warga::inRandomOrder()->first()->id ?? 1,
-            "admin_id" => \App\Models\User::first()->id ?? 1,
+            "id_warga" => Warga::inRandomOrder()->first()?->id ?? Warga::factory(),
+            "id_admin" => User::inRandomOrder()->first()?->id ?? User::factory(),
             "tanggal_pinjam" => $tanggalPinjam,
             "tenggat_pengembalian" => $tenggat,
             "tanggal_kembali" => $tanggalKembali,

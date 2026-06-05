@@ -2,27 +2,38 @@
 
 namespace App\Models;
 
+use App\Enums\KondisiBarang;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class DetailPeminjaman extends Model
 {
     use HasFactory;
+
+    protected $table = 'detail_peminjaman';
+
     protected $fillable = [
-        "peminjaman_id",
-        "barang_id",
-        "jumlah",
-        "kondisi_saat_pinjam",
-        "kondisi_saat_kembali",
+        'id_peminjaman',
+        'id_stok_barang',
+        'jumlah',
+        'kondisi_kembali',
+        'jumlah_kembali_baik',
+        'jumlah_kembali_rusak_ringan',
+        'jumlah_kembali_rusak_berat',
     ];
 
-    public function peminjaman()
+    protected $casts = [
+        'kondisi_kembali' => KondisiBarang::class,
+    ];
+
+    public function peminjaman(): BelongsTo
     {
-        return $this->belongsTo(Peminjaman::class);
+        return $this->belongsTo(Peminjaman::class, 'id_peminjaman');
     }
 
-    public function barang()
+    public function stokBarang(): BelongsTo
     {
-        return $this->belongsTo(Barang::class);
+        return $this->belongsTo(StokBarang::class, 'id_stok_barang');
     }
 }
