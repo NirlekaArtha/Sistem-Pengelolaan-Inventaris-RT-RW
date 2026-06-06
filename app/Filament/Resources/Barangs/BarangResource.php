@@ -16,6 +16,9 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 
+use App\Filament\Resources\Barangs\RelationManagers\StokBarangRelationManager;
+use App\Filament\Resources\Barangs\RelationManagers\LogBarangRelationManager;
+
 class BarangResource extends Resource
 {
     protected static ?string $model = Barang::class;
@@ -44,11 +47,24 @@ class BarangResource extends Resource
         return BarangsTable::configure($table);
     }
 
+    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        $hasActiveLoan = \App\Models\DetailPeminjaman::whereHas('peminjaman', function ($query) {
+            $query->whereIn('status', [
+                \App\Enums\StatusPeminjaman::DIPINJAM,
+                \App\Enums\StatusPeminjaman::TERLAMBAT,
+            ]);
+        })->whereIn('id_stok_barang', $record->stokBarang->pluck('id'))->exists();
+
+        return !$hasActiveLoan;
+    }
+
     public static function getRelations(): array
     {
         return [
-                //
-            ];
+            StokBarangRelationManager::class,
+            LogBarangRelationManager::class,
+        ];
     }
 
     public static function getPages(): array
