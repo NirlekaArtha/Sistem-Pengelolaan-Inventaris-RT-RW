@@ -29,6 +29,8 @@ class DetailPeminjamanResource extends Resource
     protected static string|\UnitEnum|null $navigationGroup = "Kelola Peminjaman";
     protected static ?int $navigationSort = 1;
 
+    protected static bool $shouldRegisterNavigation = false;
+
     public static function form(Schema $schema): Schema
     {
         return DetailPeminjamanForm::configure($schema);

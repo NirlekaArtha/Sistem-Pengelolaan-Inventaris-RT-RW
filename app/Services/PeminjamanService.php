@@ -59,7 +59,6 @@ class PeminjamanService
                     'id_peminjaman' => $peminjaman->id,
                     'id_stok_barang' => $stok->id,
                     'jumlah' => $detail['jumlah'],
-                    'kondisi_kembali' => null,
                     'jumlah_kembali_baik' => 0,
                     'jumlah_kembali_rusak_ringan' => 0,
                     'jumlah_kembali_rusak_berat' => 0,

@@ -34,7 +34,7 @@ class BarangsTable
                     ->alignCenter(),
 
                 TextColumn::make('stok_baik')
-                    ->label('🟢 Baik')
+                    ->label('Baik')
                     ->getStateUsing(fn (Barang $record) =>
                         $record->stokBarang()->where('kondisi', KondisiBarang::BAIK)->value('jumlah') ?? 0
                     )
@@ -44,7 +44,7 @@ class BarangsTable
                     ->alignCenter(),
 
                 TextColumn::make('stok_rusak_ringan')
-                    ->label('🟠 Rusak Ringan')
+                    ->label('Rusak Ringan')
                     ->getStateUsing(fn (Barang $record) =>
                         $record->stokBarang()->where('kondisi', KondisiBarang::RUSAK_RINGAN)->value('jumlah') ?? 0
                     )
@@ -54,7 +54,7 @@ class BarangsTable
                     ->alignCenter(),
 
                 TextColumn::make('stok_rusak_berat')
-                    ->label('🔴 Rusak Berat')
+                    ->label('Rusak Berat')
                     ->getStateUsing(fn (Barang $record) =>
                         $record->stokBarang()->where('kondisi', KondisiBarang::RUSAK_BERAT)->value('jumlah') ?? 0
                     )

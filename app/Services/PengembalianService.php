@@ -54,17 +54,8 @@ class PengembalianService
                     );
                 }
 
-                // Tentukan kondisi_kembali dominan/terburuk
-                $kondisi = KondisiBarang::BAIK;
-                if ($rusakBerat > 0) {
-                    $kondisi = KondisiBarang::RUSAK_BERAT;
-                } elseif ($rusakRingan > 0) {
-                    $kondisi = KondisiBarang::RUSAK_RINGAN;
-                }
-
                 // Update detail record
                 $detail->update([
-                    'kondisi_kembali' => $kondisi,
                     'jumlah_kembali_baik' => $baik,
                     'jumlah_kembali_rusak_ringan' => $rusakRingan,
                     'jumlah_kembali_rusak_berat' => $rusakBerat,

@@ -25,30 +25,14 @@ class StokBarangRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('kondisi')
                     ->label('Kondisi Barang')
-                    ->badge()
-                    ->formatStateUsing(fn ($state): string => match (
-                        $state instanceof \BackedEnum ? $state->value : $state
-                    ) {
-                        'baik'         => '🟢 Baik',
-                        'rusak_ringan' => '🟠 Rusak Ringan',
-                        'rusak_berat'  => '🔴 Rusak Berat',
-                        default        => $state,
-                    })
-                    ->color(fn ($state): string => match (
-                        $state instanceof \BackedEnum ? $state->value : $state
-                    ) {
-                        'baik'         => 'success',
-                        'rusak_ringan' => 'warning',
-                        'rusak_berat'  => 'danger',
-                        default        => 'gray',
-                    }),
+                    ->badge(),
 
                 TextColumn::make('jumlah')
                     ->label('Jumlah')
                     ->numeric()
                     ->sortable()
                     ->badge()
-                    ->color('primary')
+                    ->color('info')
                     ->suffix(' unit'),
 
                 TextColumn::make('updated_at')

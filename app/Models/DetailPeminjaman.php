@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\KondisiBarang;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,14 +16,9 @@ class DetailPeminjaman extends Model
         'id_peminjaman',
         'id_stok_barang',
         'jumlah',
-        'kondisi_kembali',
         'jumlah_kembali_baik',
         'jumlah_kembali_rusak_ringan',
         'jumlah_kembali_rusak_berat',
-    ];
-
-    protected $casts = [
-        'kondisi_kembali' => KondisiBarang::class,
     ];
 
     public function peminjaman(): BelongsTo

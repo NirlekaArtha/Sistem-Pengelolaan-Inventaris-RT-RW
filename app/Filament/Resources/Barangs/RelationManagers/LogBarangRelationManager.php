@@ -75,9 +75,9 @@ class LogBarangRelationManager extends RelationManager
                                 ? $state->value
                                 : $state
                         ) {
-                            "baik" => "🟢 Baik",
-                            "rusak_ringan" => "🟠 Rusak Ringan",
-                            "rusak_berat" => "🔴 Rusak Berat",
+                            "baik" => "Baik",
+                            "rusak_ringan" => "Rusak Ringan",
+                            "rusak_berat" => "Rusak Berat",
                             default => $state,
                         },
                     )

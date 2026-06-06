@@ -45,7 +45,7 @@ class BarangForm
                 ->schema([
                     Grid::make(3)->schema([
                         TextInput::make("stok_baik")
-                            ->label("🟢 Kondisi Baik")
+                            ->label("Kondisi Baik")
                             ->helperText("Jumlah barang dalam kondisi baik")
                             ->numeric()
                             ->minValue(0)
@@ -54,7 +54,7 @@ class BarangForm
                             ->required(),
 
                         TextInput::make("stok_rusak_ringan")
-                            ->label("🟠 Rusak Ringan")
+                            ->label("Rusak Ringan")
                             ->helperText("Jumlah barang rusak ringan")
                             ->numeric()
                             ->minValue(0)
@@ -63,7 +63,7 @@ class BarangForm
                             ->required(),
 
                         TextInput::make("stok_rusak_berat")
-                            ->label("🔴 Rusak Berat")
+                            ->label("Rusak Berat")
                             ->helperText("Jumlah barang rusak berat")
                             ->numeric()
                             ->minValue(0)

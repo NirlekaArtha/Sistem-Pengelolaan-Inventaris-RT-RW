@@ -46,9 +46,10 @@ class CreateBarang extends CreateRecord
             ];
 
             foreach ($stokList as $kondisi => $jumlah) {
-                $stok = StokBarang::create([
+                $stok = StokBarang::updateOrCreate([
                     "id_barang" => $barang->id,
-                    "kondisi" => $kondisi, // Pass the primitive value or Enum instance depending on your model casting
+                    "kondisi" => $kondisi,
+                ], [
                     "jumlah" => $jumlah,
                 ]);
 

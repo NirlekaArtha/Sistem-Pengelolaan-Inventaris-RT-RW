@@ -15,7 +15,6 @@ return new class extends Migration {
             $table->foreignId('id_peminjaman')->constrained('peminjaman')->cascadeOnDelete();
             $table->foreignId('id_stok_barang')->constrained('stok_barang')->cascadeOnDelete();
             $table->unsignedInteger('jumlah');
-            $table->enum('kondisi_kembali', ['baik', 'rusak_ringan', 'rusak_berat'])->nullable();
             $table->unsignedInteger('jumlah_kembali_baik')->default(0);
             $table->unsignedInteger('jumlah_kembali_rusak_ringan')->default(0);
             $table->unsignedInteger('jumlah_kembali_rusak_berat')->default(0);

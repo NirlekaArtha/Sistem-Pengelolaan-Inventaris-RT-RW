@@ -2,9 +2,6 @@
 
 namespace App\Filament\Resources\DetailPeminjamen\Tables;
 
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -15,33 +12,28 @@ class DetailPeminjamenTable
     {
         return $table
             ->columns([
-                TextColumn::make("peminjaman_id")->numeric()->sortable(),
-                TextColumn::make("barang.nama_barang")
-                    ->label("Nama barang")
+                TextColumn::make('peminjaman.id')
+                    ->label('ID Peminjaman')
+                    ->numeric()
+                    ->sortable(),
+                TextColumn::make('stokBarang.barang.nama_barang')
+                    ->label('Nama Barang')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make("jumlah")->numeric()->sortable(),
-                TextColumn::make("kondisi_saat_pinjam")
+                TextColumn::make('stokBarang.kondisi')
+                    ->label('Kondisi Pinjam')
                     ->badge()
-                    ->badge()
-                    ->colors([
-                        "success" => "baik",
-                        "warning" => "rusak ringan",
-                        "danger" => "rusak berat",
-                    ]),
-                TextColumn::make("kondisi_saat_kembali")
-                    ->badge()
-                    ->badge()
-                    ->colors([
-                        "success" => "baik",
-                        "warning" => "rusak ringan",
-                        "danger" => "rusak berat",
-                    ]),
-                TextColumn::make("created_at")
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make("updated_at")
+                    ->color(fn ($state): string => match ($state instanceof \BackedEnum ? $state->value : $state) {
+                        'baik' => 'success',
+                        'rusak_ringan' => 'warning',
+                        'rusak_berat' => 'danger',
+                        default => 'gray',
+                    }),
+                TextColumn::make('jumlah')
+                    ->numeric()
+                    ->sortable(),
+                TextColumn::make('created_at')
+                    ->label('Dibuat Pada')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -49,9 +41,7 @@ class DetailPeminjamenTable
             ->filters([
                 //
             ])
-            ->recordActions([ViewAction::make(), EditAction::make()])
-            ->toolbarActions([
-                BulkActionGroup::make([DeleteBulkAction::make()]),
-            ]);
+            ->recordActions([ViewAction::make()])
+            ->toolbarActions([]);
     }
 }

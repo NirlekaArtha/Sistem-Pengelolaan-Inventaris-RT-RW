@@ -29,7 +29,7 @@ class DashboardPanelProvider extends PanelProvider
             ->path("dashboard")
             ->login()
             ->colors([
-                "primary" => Color::Amber,
+                "primary" => "#2563EB",
             ])
             ->discoverResources(
                 in: app_path("Filament/Resources"),
