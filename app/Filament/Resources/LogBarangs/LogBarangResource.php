@@ -2,8 +2,6 @@
 
 namespace App\Filament\Resources\LogBarangs;
 
-use App\Filament\Resources\LogBarangs\Pages\CreateLogBarang;
-use App\Filament\Resources\LogBarangs\Pages\EditLogBarang;
 use App\Filament\Resources\LogBarangs\Pages\ListLogBarangs;
 use App\Filament\Resources\LogBarangs\Pages\ViewLogBarang;
 use App\Filament\Resources\LogBarangs\Schemas\LogBarangForm;
@@ -47,17 +45,15 @@ class LogBarangResource extends Resource
     public static function getRelations(): array
     {
         return [
-                //
-            ];
+            //
+        ];
     }
 
     public static function getPages(): array
     {
         return [
             "index" => ListLogBarangs::route("/"),
-            "create" => CreateLogBarang::route("/create"),
             "view" => ViewLogBarang::route("/{record}"),
-            "edit" => EditLogBarang::route("/{record}/edit"),
         ];
     }
 }

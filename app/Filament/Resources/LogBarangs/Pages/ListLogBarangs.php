@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\LogBarangs\Pages;
 
 use App\Filament\Resources\LogBarangs\LogBarangResource;
-use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 
 class ListLogBarangs extends ListRecords
@@ -12,8 +11,6 @@ class ListLogBarangs extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        return [
-            CreateAction::make(),
-        ];
+        return [];
     }
 }
