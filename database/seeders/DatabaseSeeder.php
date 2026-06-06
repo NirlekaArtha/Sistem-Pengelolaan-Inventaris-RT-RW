@@ -61,11 +61,44 @@ class DatabaseSeeder extends Seeder
         });
 
         // peminjaman
-        Peminjaman::factory(20)->create();
-
-        // detail
-        DetailPeminjaman::factory(26)->create();
-
+        // peminjaman + detail otomatis yang sinkron
+Peminjaman::factory(20)
+    ->create()
+    ->each(function (Peminjaman $peminjaman) {
+        
+        // Buat detail peminjaman (antara 1 - 3 barang)
+        DetailPeminjaman::factory(rand(1, 3))
+            ->make([
+                'id_peminjaman' => $peminjaman->id
+            ])
+            ->each(function (DetailPeminjaman $detail) use ($peminjaman) {
+                
+                // Jika status peminjaman adalah Selesai/Terlambat, hitung logikanya di sini
+                if (in_array($peminjaman->status, [StatusPeminjaman::DIKEMBALIKAN, StatusPeminjaman::DIKEMBALIKAN_TERLAMBAT])) {
+                    $kembali = $detail->jumlah;
+                    
+                    $kembaliBaik = rand(0, $kembali);
+                    $kembali -= $kembaliBaik;
+                    
+                    $kembaliRusakRingan = 0;
+                    $kembaliRusakBerat = 0;
+                    
+                    if ($kembali > 0) {
+                        $kembaliRusakRingan = rand(0, $kembali);
+                        $kembali -= $kembaliRusakRingan;
+                        $kembaliRusakBerat = $kembali;
+                    }
+                    
+                    // Masukkan nilai yang sudah dihitung ke model detail
+                    $detail->jumlah_kembali_baik = $kembaliBaik;
+                    $detail->jumlah_kembali_rusak_ringan = $kembaliRusakRingan;
+                    $detail->jumlah_kembali_rusak_berat = $kembaliRusakBerat;
+                }
+                
+                // Simpan ke database
+                $detail->save();
+            });
+    });
         // log
         LogBarang::factory(30)->create();
 

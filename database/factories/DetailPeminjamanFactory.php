@@ -3,51 +3,26 @@
 namespace Database\Factories;
 
 use App\Models\DetailPeminjaman;
-use App\Models\Peminjaman;
 use App\Models\StokBarang;
-use App\Enums\StatusPeminjaman;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends Factory<DetailPeminjaman>
- */
 class DetailPeminjamanFactory extends Factory
 {
     protected $model = DetailPeminjaman::class;
 
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
-        $peminjaman = Peminjaman::inRandomOrder()->first() ?? Peminjaman::factory()->create();
-        $stokBarang = StokBarang::inRandomOrder()->first() ?? StokBarang::factory()->create();
+        // Cari stok barang yang tersedia
+        $stokBarang = StokBarang::where("jumlah", ">", 0)->inRandomOrder()->first() 
+            ?? StokBarang::factory()->create();
         
-        $jumlah = rand(1, 5);
-        $kembaliBaik = 0;
-        $kembaliRusakRingan = 0;
-        $kembaliRusakBerat = 0;
-
-        if (in_array($peminjaman->status, [StatusPeminjaman::DIKEMBALIKAN, StatusPeminjaman::DIKEMBALIKAN_TERLAMBAT])) {
-            $kembali = $jumlah;
-            $kembaliBaik = rand(0, $kembali);
-            $kembali -= $kembaliBaik;
-            if ($kembali > 0) {
-                $kembaliRusakRingan = rand(0, $kembali);
-                $kembali -= $kembaliRusakRingan;
-                $kembaliRusakBerat = $kembali;
-            }
-        }
-
         return [
-            "id_peminjaman" => $peminjaman->id,
+            "id_peminjaman" => null, // Akan diisi oleh Seeder / relasi parent
             "id_stok_barang" => $stokBarang->id,
-            "jumlah" => $jumlah,
-            "jumlah_kembali_baik" => $kembaliBaik,
-            "jumlah_kembali_rusak_ringan" => $kembaliRusakRingan,
-            "jumlah_kembali_rusak_berat" => $kembaliRusakBerat,
+            "jumlah" => rand(1, 5),
+            "jumlah_kembali_baik" => 0,
+            "jumlah_kembali_rusak_ringan" => 0,
+            "jumlah_kembali_rusak_berat" => 0,
         ];
     }
 }
