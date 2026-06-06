@@ -20,20 +20,20 @@ class BarangObserver
     /**
      * Handle the Barang "created" event.
      */
-    public function created(Barang $barang): void
-    {
-        // Inisialisasi 3 baris stok awal
-        $this->stokService->inisialisasiStok($barang);
+    // public function created(Barang $barang): void
+    // {
+    //     // Inisialisasi 3 baris stok awal
+    //     $this->stokService->inisialisasiStok($barang);
 
-        // Catat log barang baru terdaftar
-        LogBarang::create([
-            'id_barang' => $barang->id,
-            'kondisi' => KondisiBarang::BAIK,
-            'tipe' => TipeLogBarang::MASUK,
-            'jumlah' => 0,
-            'keterangan' => 'Barang baru ditambahkan ke sistem',
-        ]);
-    }
+    //     // Catat log barang baru terdaftar
+    //     LogBarang::create([
+    //         'id_barang' => $barang->id,
+    //         'kondisi' => KondisiBarang::BAIK,
+    //         'tipe' => TipeLogBarang::MASUK,
+    //         'jumlah' => 0,
+    //         'keterangan' => 'Barang baru ditambahkan ke sistem',
+    //     ]);
+    // }
 
     /**
      * Handle the Barang "updated" event.

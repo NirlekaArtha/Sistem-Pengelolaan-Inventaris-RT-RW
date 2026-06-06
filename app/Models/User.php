@@ -9,10 +9,11 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Filament\Models\Contracts\HasName;
 
 #[Fillable(["nama", "email", "password"])]
 #[Hidden(["password", "remember_token"])]
-class User extends Authenticatable
+class User extends Authenticatable implements HasName
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
@@ -33,6 +34,11 @@ class User extends Authenticatable
     public function peminjaman()
     {
         return $this->hasMany(Peminjaman::class, 'id_admin');
+    }
+
+    public function getFilamentName(): string
+    {
+        return $this->nama;
     }
 }
 
