@@ -3,9 +3,10 @@
 namespace App\Enums;
 
 use Filament\Support\Contracts\HasColor;
+use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 
-enum StatusPeminjaman: string implements HasColor, HasLabel
+enum StatusPeminjaman: string implements HasColor, HasLabel, HasIcon
 {
     case DIPINJAM = 'dipinjam';
     case DIKEMBALIKAN = 'dikembalikan';
@@ -29,6 +30,16 @@ enum StatusPeminjaman: string implements HasColor, HasLabel
             self::DIKEMBALIKAN => 'success',
             self::TERLAMBAT => 'danger',
             self::DIKEMBALIKAN_TERLAMBAT => 'danger',
+        };
+    }
+
+    public function getIcon(): string
+    {
+        return match ($this) {
+            self::DIPINJAM => 'heroicon-m-play-circle',
+            self::DIKEMBALIKAN => 'heroicon-m-check-circle',
+            self::TERLAMBAT => 'heroicon-m-clock',
+            self::DIKEMBALIKAN_TERLAMBAT => 'heroicon-m-exclamation-triangle',
         };
     }
 }
