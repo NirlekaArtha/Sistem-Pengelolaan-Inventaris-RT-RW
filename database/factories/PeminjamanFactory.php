@@ -29,7 +29,7 @@ class PeminjamanFactory extends Factory
 
         // 1. Shift the initial booking window slightly back so "tenggat" doesn't overshoot "now" as often,
         // OR ensure your conditional limits adapt dynamically.
-        $tanggalPinjam = fake()->dateTimeBetween("-30 days", "now");
+        $tanggalPinjam = fake()->dateTimeBetween("-120 days", "now");
         $tenggat = (clone $tanggalPinjam)->modify("+7 days");
 
         $status = $statusList[array_rand($statusList)];

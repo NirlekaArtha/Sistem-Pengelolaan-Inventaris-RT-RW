@@ -23,20 +23,25 @@ class BarangObserver
     public function updated(Barang $barang): void
     {
         $changes = [];
-        if ($barang->isDirty('nama_barang')) {
-            $changes[] = "Nama diubah dari '" . $barang->getOriginal('nama_barang') . "' menjadi '" . $barang->nama_barang . "'";
+        if ($barang->isDirty("nama_barang")) {
+            $changes[] =
+                "Nama diubah dari '" .
+                $barang->getOriginal("nama_barang") .
+                "' menjadi '" .
+                $barang->nama_barang .
+                "'";
         }
-        if ($barang->isDirty('keterangan')) {
+        if ($barang->isDirty("keterangan")) {
             $changes[] = "Keterangan diubah";
         }
 
         if (!empty($changes)) {
             LogBarang::create([
-                'id_barang' => $barang->id,
-                'kondisi' => KondisiBarang::BAIK,
-                'tipe' => TipeLogBarang::MASUK,
-                'jumlah' => 0,
-                'keterangan' => implode(', ', $changes),
+                "id_barang" => $barang->id,
+                "kondisi" => KondisiBarang::BAIK,
+                "tipe" => TipeLogBarang::MASUK,
+                "jumlah" => 0,
+                "keterangan" => implode(", ", $changes),
             ]);
         }
     }
