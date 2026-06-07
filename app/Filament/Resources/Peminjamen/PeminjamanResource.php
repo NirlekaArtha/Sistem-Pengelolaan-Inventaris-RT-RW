@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Peminjamen;
 
 use App\Filament\Resources\Peminjamen\Pages\CreatePeminjaman;
+use App\Filament\Resources\Peminjamen\Pages\EditPeminjaman;
 use App\Filament\Resources\Peminjamen\Pages\ListPeminjamen;
 use App\Filament\Resources\Peminjamen\Pages\ViewPeminjaman;
 use App\Filament\Resources\Peminjamen\Schemas\PeminjamanForm;
@@ -55,6 +56,7 @@ class PeminjamanResource extends Resource
         return [
             "index" => ListPeminjamen::route("/"),
             "create" => CreatePeminjaman::route("/create"),
+            "edit" => EditPeminjaman::route("/{record}/edit"),
             "view" => ViewPeminjaman::route("/{record}"),
         ];
     }
