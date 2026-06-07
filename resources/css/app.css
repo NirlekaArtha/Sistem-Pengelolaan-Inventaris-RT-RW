@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -6,6 +6,100 @@
 @source '../**/*.js';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    /* 1. Custom Font Family (Menggabungkan Instrument Sans bawaan & DM Sans/Mono kamu) */
+    --font-sans:
+        "Instrument Sans", '"DM Sans"', ui-sans-serif, system-ui, sans-serif,
+        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+        "Noto Color Emoji";
+    --font-mono: '"DM Mono"', ui-monospace, monospace;
+
+    /* 2. Custom Colors (Palet Warna Primary) */
+    --color-primary-50: #eff6ff;
+    --color-primary-100: #dbeafe;
+    --color-primary-200: #bfdbfe;
+    --color-primary-300: #93c5fd;
+    --color-primary-400: #60a5fa;
+    --color-primary-500: #3b82f6;
+    --color-primary-600: #2563eb;
+    --color-primary-700: #1d4ed8;
+    --color-primary-800: #1e40af;
+    --color-primary-900: #1e3a8a;
+    --color-primary-950: #172554;
+
+    /* 3. Custom Keyframes & Animations (Format Tailwind v4) */
+    @keyframes fadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(12px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    --animate-fade-up: fadeUp 0.45s ease both;
+    --animate-fade-up2: fadeUp 0.45s 0.08s ease both;
+    --animate-fade-up3: fadeUp 0.45s 0.16s ease both;
+    --animate-fade-up4: fadeUp 0.45s 0.24s ease both;
+    --animate-fade-up5: fadeUp 0.45s 0.32s ease both;
+}
+
+/* ================================================================
+   CUSTOM UTILITIES & STYLES (Menggunakan directive @utility v4)
+================================================================ */
+
+@variant dark (&:where(.dark, .dark *));
+
+@utility fi-card {
+    transition:
+        box-shadow 0.15s,
+        border-color 0.15s;
+
+    &:hover {
+        box-shadow: 0 4px 16px rgb(37 99 235 / 0.07);
+        border-color: rgb(147 197 253 / 0.7);
+    }
+}
+
+/* Mengatasi hover .fi-card saat dark mode aktif */
+.dark .fi-card:hover {
+    border-color: rgb(37 99 235 / 0.4);
+    box-shadow: 0 4px 16px rgb(37 99 235 / 0.12);
+}
+
+@utility sep {
+    height: 1px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgb(148 163 184 / 0.25),
+        transparent
+    );
+}
+
+.dark .sep {
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgb(255 255 255 / 0.07),
+        transparent
+    );
+}
+
+/* Global Reset & Base Styles */
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+}
+
+a:focus-visible,
+button:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
+    border-radius: 6px;
 }
