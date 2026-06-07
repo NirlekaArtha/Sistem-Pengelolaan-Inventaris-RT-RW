@@ -13,7 +13,7 @@ class DetailPeminjamanFactory extends Factory
     public function definition(): array
     {
         // Cari stok barang yang tersedia
-        $stokBarang = StokBarang::where("jumlah", ">", 0)->inRandomOrder()->first() 
+        $stokBarang = StokBarang::where("stok_tersedia", ">", 0)->inRandomOrder()->first() 
             ?? StokBarang::factory()->create();
         
         return [

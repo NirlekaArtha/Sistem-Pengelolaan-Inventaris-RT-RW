@@ -41,7 +41,7 @@ class PeminjamanService
 
                 if (!$this->stokService->cekKetersediaan($stok, $detail['jumlah'])) {
                     throw new InvalidArgumentException(
-                        "Stok barang '{$stok->barang->nama_barang}' (kondisi: {$stok->kondisi->value}) tidak mencukupi. Tersedia: {$stok->jumlah}, Diminta: {$detail['jumlah']}."
+                        "Stok barang '{$stok->barang->nama_barang}' (kondisi: {$stok->kondisi->value}) tidak mencukupi. Tersedia: {$stok->stok_tersedia}, Diminta: {$detail['jumlah']}."
                     );
                 }
             }
@@ -50,7 +50,7 @@ class PeminjamanService
             $data['status'] = $data['status'] ?? StatusPeminjaman::DIPINJAM;
             $peminjaman = Peminjaman::create($data);
 
-            // 3. Simpan Detail Peminjaman & Kurangi Stok
+            // 3. Simpan Detail Peminjaman & Kurangi Stok Tersedia
             foreach ($details as $detail) {
                 $stok = StokBarang::lockForUpdate()->find($detail['id_stok_barang']);
 
@@ -64,7 +64,7 @@ class PeminjamanService
                 ]);
 
                 $keteranganLog = "Peminjaman #{$peminjaman->id} oleh warga ID {$peminjaman->id_warga}";
-                $this->stokService->kurangiStok($stok, $detail['jumlah'], $keteranganLog);
+                $this->stokService->pinjamStok($stok, $detail['jumlah'], $keteranganLog);
             }
 
             return $peminjaman;
@@ -114,23 +114,24 @@ class PeminjamanService
                         $stok = StokBarang::lockForUpdate()->find($idStokBarang);
 
                         if ($newJumlah > $oldJumlah) {
-                            // Jumlah bertambah → kurangi stok tambahan
+                            // Jumlah bertambah → kurangi stok_tersedia tambahan
                             $diff = $newJumlah - $oldJumlah;
                             if (!$this->stokService->cekKetersediaan($stok, $diff)) {
                                 throw new InvalidArgumentException(
                                     "Stok '{$stok->barang->nama_barang}' tidak mencukupi. " .
-                                    "Tersedia: {$stok->jumlah}, Tambahan diminta: {$diff}."
+                                    "Tersedia: {$stok->stok_tersedia}, Tambahan diminta: {$diff}."
                                 );
                             }
-                            $this->stokService->kurangiStok(
+                            $this->stokService->pinjamStok(
                                 $stok,
                                 $diff,
                                 "Edit Peminjaman #{$peminjaman->id} - tambah jumlah"
                             );
                         } else {
-                            // Jumlah berkurang → kembalikan selisih ke stok
+                            // Jumlah berkurang → kembalikan selisih ke stok_tersedia
                             $diff = $oldJumlah - $newJumlah;
-                            $this->stokService->tambahStok(
+                            $this->stokService->kembalikanStok(
+                                $stok,
                                 $stok,
                                 $diff,
                                 "Edit Peminjaman #{$peminjaman->id} - kurangi jumlah"
@@ -150,11 +151,11 @@ class PeminjamanService
                     if (!$this->stokService->cekKetersediaan($stok, $newJumlah)) {
                         throw new InvalidArgumentException(
                             "Stok '{$stok->barang->nama_barang}' tidak mencukupi. " .
-                            "Tersedia: {$stok->jumlah}, Diminta: {$newJumlah}."
+                            "Tersedia: {$stok->stok_tersedia}, Diminta: {$newJumlah}."
                         );
                     }
 
-                    $this->stokService->kurangiStok(
+                    $this->stokService->pinjamStok(
                         $stok,
                         $newJumlah,
                         "Edit Peminjaman #{$peminjaman->id} - barang baru/diganti"
@@ -173,12 +174,13 @@ class PeminjamanService
                 }
             }
 
-            // 4. Detail yang tidak ada di form baru → kembalikan stok & hapus
+            // 4. Detail yang tidak ada di form baru → kembalikan stok_tersedia & hapus
             foreach ($oldDetails as $idStokBarang => $oldDetail) {
                 if (!in_array($idStokBarang, $processedStokIds)) {
                     $stok = StokBarang::find($idStokBarang);
                     if ($stok) {
-                        $this->stokService->tambahStok(
+                        $this->stokService->kembalikanStok(
+                            $stok,
                             $stok,
                             (int) $oldDetail->jumlah,
                             "Edit Peminjaman #{$peminjaman->id} - barang dihapus/diganti"

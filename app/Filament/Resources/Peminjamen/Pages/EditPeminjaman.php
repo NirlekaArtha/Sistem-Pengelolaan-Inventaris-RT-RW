@@ -39,7 +39,7 @@ class EditPeminjaman extends EditRecord
                                             ? $stok->kondisi->value
                                             : $stok?->kondisi,
                     'id_stok_barang' => $detail->id_stok_barang,
-                    'stok_tersedia'  => $stok?->jumlah,
+                    'stok_tersedia'  => ($stok?->stok_tersedia ?? 0) + $detail->jumlah,
                     'jumlah'         => $detail->jumlah,
                 ];
             })

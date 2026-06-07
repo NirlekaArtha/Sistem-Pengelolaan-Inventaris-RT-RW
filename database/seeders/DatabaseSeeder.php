@@ -49,9 +49,10 @@ class DatabaseSeeder extends Seeder
             $totalStok = 0;
             foreach ($stokPerKondisi as $stok) {
                 StokBarang::create([
-                    'id_barang' => $barang->id,
-                    'kondisi'   => $stok['kondisi'],
-                    'jumlah'    => $stok['jumlah'],
+                    'id_barang'     => $barang->id,
+                    'kondisi'       => $stok['kondisi'],
+                    'jumlah_total'  => $stok['jumlah'],
+                    'stok_tersedia' => $stok['jumlah'], // akan disesuaikan setelah detail peminjaman dibuat
                 ]);
                 $totalStok += $stok['jumlah'];
             }
@@ -61,43 +62,116 @@ class DatabaseSeeder extends Seeder
         });
 
         // peminjaman
-        // peminjaman + detail otomatis yang sinkron
+        // peminjaman + detail otomatis yang sinkron dengan stok_tersedia dan jumlah_total secara dinamis
         Peminjaman::factory(20)
             ->create()
             ->each(function (Peminjaman $peminjaman) {
-                
-                // Buat detail peminjaman (antara 1 - 3 barang)
-                DetailPeminjaman::factory(rand(1, 3))
-                    ->make([
-                        'id_peminjaman' => $peminjaman->id
-                    ])
-                    ->each(function (DetailPeminjaman $detail) use ($peminjaman) {
-                        
-                        // Jika status peminjaman adalah Selesai/Terlambat, hitung logikanya di sini
-                        if (in_array($peminjaman->status, [StatusPeminjaman::DIKEMBALIKAN, StatusPeminjaman::DIKEMBALIKAN_TERLAMBAT])) {
-                            $kembali = $detail->jumlah;
-                            
-                            $kembaliBaik = rand(0, $kembali);
-                            $kembali -= $kembaliBaik;
-                            
-                            $kembaliRusakRingan = 0;
-                            $kembaliRusakBerat = 0;
-                            
-                            if ($kembali > 0) {
-                                $kembaliRusakRingan = rand(0, $kembali);
-                                $kembali -= $kembaliRusakRingan;
-                                $kembaliRusakBerat = $kembali;
-                            }
-                            
-                            // Masukkan nilai yang sudah dihitung ke model detail
-                            $detail->jumlah_kembali_baik = $kembaliBaik;
-                            $detail->jumlah_kembali_rusak_ringan = $kembaliRusakRingan;
-                            $detail->jumlah_kembali_rusak_berat = $kembaliRusakBerat;
+                // Tentukan jumlah barang unik yang dipinjam (antara 1 - 3 barang)
+                $numItems = rand(1, 3);
+                $selectedStokIds = [];
+
+                for ($i = 0; $i < $numItems; $i++) {
+                    // Cari stok barang yang memiliki stok_tersedia > 0 dan belum dipilih dalam peminjaman ini
+                    $stokBarang = StokBarang::where('stok_tersedia', '>', 0)
+                        ->whereNotIn('id', $selectedStokIds)
+                        ->inRandomOrder()
+                        ->first();
+
+                    if (!$stokBarang) {
+                        break;
+                    }
+
+                    $selectedStokIds[] = $stokBarang->id;
+
+                    // Jumlah barang yang dipinjam (antara 1 dan min(5, stok_tersedia))
+                    $jumlah = rand(1, min(5, $stokBarang->stok_tersedia));
+
+                    // Kurangi stok_tersedia pada database
+                    $stokBarang->stok_tersedia -= $jumlah;
+
+                    $kembaliBaik = 0;
+                    $kembaliRusakRingan = 0;
+                    $kembaliRusakBerat = 0;
+
+                    // Jika status peminjaman adalah Selesai/Terlambat, hitung logikanya di sini
+                    if (in_array($peminjaman->status, [StatusPeminjaman::DIKEMBALIKAN, StatusPeminjaman::DIKEMBALIKAN_TERLAMBAT])) {
+                        $kembali = $jumlah;
+
+                        $kembaliBaik = rand(0, $kembali);
+                        $kembali -= $kembaliBaik;
+
+                        if ($kembali > 0) {
+                            $kembaliRusakRingan = rand(0, $kembali);
+                            $kembali -= $kembaliRusakRingan;
+                            $kembaliRusakBerat = $kembali;
                         }
-                        
-                        // Simpan ke database
-                        $detail->save();
-                    });
+
+                        // Kembalikan ke stok masing-masing kondisi
+                        // 1. Kembali Baik
+                        if ($kembaliBaik > 0) {
+                            $stokBaik = StokBarang::where('id_barang', $stokBarang->id_barang)
+                                ->where('kondisi', KondisiBarang::BAIK)
+                                ->first();
+                            if ($stokBaik) {
+                                if ($stokBarang->kondisi === KondisiBarang::BAIK) {
+                                    $stokBarang->stok_tersedia += $kembaliBaik;
+                                } else {
+                                    $stokBarang->jumlah_total -= $kembaliBaik;
+                                    $stokBaik->stok_tersedia += $kembaliBaik;
+                                    $stokBaik->jumlah_total += $kembaliBaik;
+                                    $stokBaik->save();
+                                }
+                            }
+                        }
+
+                        // 2. Kembali Rusak Ringan
+                        if ($kembaliRusakRingan > 0) {
+                            $stokRusakRingan = StokBarang::where('id_barang', $stokBarang->id_barang)
+                                ->where('kondisi', KondisiBarang::RUSAK_RINGAN)
+                                ->first();
+                            if ($stokRusakRingan) {
+                                if ($stokBarang->kondisi === KondisiBarang::RUSAK_RINGAN) {
+                                    $stokBarang->stok_tersedia += $kembaliRusakRingan;
+                                } else {
+                                    $stokBarang->jumlah_total -= $kembaliRusakRingan;
+                                    $stokRusakRingan->stok_tersedia += $kembaliRusakRingan;
+                                    $stokRusakRingan->jumlah_total += $kembaliRusakRingan;
+                                    $stokRusakRingan->save();
+                                }
+                            }
+                        }
+
+                        // 3. Kembali Rusak Berat
+                        if ($kembaliRusakBerat > 0) {
+                            $stokRusakBerat = StokBarang::where('id_barang', $stokBarang->id_barang)
+                                ->where('kondisi', KondisiBarang::RUSAK_BERAT)
+                                ->first();
+                            if ($stokRusakBerat) {
+                                if ($stokBarang->kondisi === KondisiBarang::RUSAK_BERAT) {
+                                    $stokBarang->stok_tersedia += $kembaliRusakBerat;
+                                } else {
+                                    $stokBarang->jumlah_total -= $kembaliRusakBerat;
+                                    $stokRusakBerat->stok_tersedia += $kembaliRusakBerat;
+                                    $stokRusakBerat->jumlah_total += $kembaliRusakBerat;
+                                    $stokRusakBerat->save();
+                                }
+                            }
+                        }
+                    }
+
+                    // Simpan sisa perubahan stok asal ke database
+                    $stokBarang->save();
+
+                    // Simpan detail peminjaman ke database
+                    DetailPeminjaman::create([
+                        'id_peminjaman'               => $peminjaman->id,
+                        'id_stok_barang'              => $stokBarang->id,
+                        'jumlah'                      => $jumlah,
+                        'jumlah_kembali_baik'         => $kembaliBaik,
+                        'jumlah_kembali_rusak_ringan' => $kembaliRusakRingan,
+                        'jumlah_kembali_rusak_berat'  => $kembaliRusakBerat,
+                    ]);
+                }
             });
         // log
         LogBarang::factory(30)->create();

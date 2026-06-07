@@ -50,17 +50,20 @@ class InventoryServiceTest extends TestCase
         $this->assertDatabaseHas('stok_barang', [
             'id_barang' => $barang->id,
             'kondisi' => KondisiBarang::BAIK->value,
-            'jumlah' => 0,
+            'jumlah_total' => 0,
+            'stok_tersedia' => 0,
         ]);
         $this->assertDatabaseHas('stok_barang', [
             'id_barang' => $barang->id,
             'kondisi' => KondisiBarang::RUSAK_RINGAN->value,
-            'jumlah' => 0,
+            'jumlah_total' => 0,
+            'stok_tersedia' => 0,
         ]);
         $this->assertDatabaseHas('stok_barang', [
             'id_barang' => $barang->id,
             'kondisi' => KondisiBarang::RUSAK_BERAT->value,
-            'jumlah' => 0,
+            'jumlah_total' => 0,
+            'stok_tersedia' => 0,
         ]);
 
         $this->assertDatabaseHas('log_barang', [
@@ -79,7 +82,8 @@ class InventoryServiceTest extends TestCase
         $stokBaik->refresh();
         $barang->refresh();
 
-        $this->assertEquals(10, $stokBaik->jumlah);
+        $this->assertEquals(10, $stokBaik->jumlah_total);
+        $this->assertEquals(10, $stokBaik->stok_tersedia);
         $this->assertEquals(10, $barang->jumlah_total);
 
         $this->assertDatabaseHas('log_barang', [
@@ -103,7 +107,8 @@ class InventoryServiceTest extends TestCase
         $stokBaik->refresh();
         $barang->refresh();
 
-        $this->assertEquals(6, $stokBaik->jumlah);
+        $this->assertEquals(6, $stokBaik->jumlah_total);
+        $this->assertEquals(6, $stokBaik->stok_tersedia);
         $this->assertEquals(6, $barang->jumlah_total);
 
         $this->assertDatabaseHas('log_barang', [
@@ -153,13 +158,66 @@ class InventoryServiceTest extends TestCase
 
         $this->assertNotNull($peminjaman);
         $stokBaik->refresh();
-        $this->assertEquals(7, $stokBaik->jumlah);
+        $this->assertEquals(10, $stokBaik->jumlah_total);
+        $this->assertEquals(7, $stokBaik->stok_tersedia);
 
         $this->assertDatabaseHas('peminjaman', [
             'id' => $peminjaman->id,
             'id_warga' => $warga->id,
             'status' => StatusPeminjaman::DIPINJAM->value,
         ]);
+
+        $this->assertDatabaseHas('detail_peminjaman', [
+            'id_peminjaman' => $peminjaman->id,
+            'id_stok_barang' => $stokBaik->id,
+            'jumlah' => 3,
+        ]);
+    }
+
+    public function test_can_update_loan_successfully_adjusting_stock()
+    {
+        $admin = User::factory()->create();
+        $warga = Warga::factory()->create();
+        
+        $barang = Barang::create(['nama_barang' => 'Tenda', 'jumlah_total' => 0]);
+        $stokBaik = $barang->stokBarang()->where('kondisi', KondisiBarang::BAIK)->first();
+        $this->stokService->tambahStok($stokBaik, 3, 'Restock'); // total stock = 3
+
+        $loanData = [
+            'id_warga' => $warga->id,
+            'id_admin' => $admin->id,
+            'tanggal_pinjam' => today()->toDateString(),
+            'tenggat_pengembalian' => today()->addDays(7)->toDateString(),
+        ];
+
+        // 1. Borrow 2 items
+        $details = [
+            [
+                'id_stok_barang' => $stokBaik->id,
+                'jumlah' => 2,
+            ]
+        ];
+
+        $peminjaman = $this->peminjamanService->buatPeminjaman($loanData, $details);
+
+        $stokBaik->refresh();
+        $this->assertEquals(3, $stokBaik->jumlah_total);
+        $this->assertEquals(1, $stokBaik->stok_tersedia); // 3 - 2 = 1 available
+
+        // 2. Update loan: change borrowed quantity from 2 to 3
+        $newDetails = [
+            [
+                'id_stok_barang' => $stokBaik->id,
+                'jumlah' => 3,
+            ]
+        ];
+
+        $peminjaman = $this->peminjamanService->updatePeminjaman($peminjaman, $loanData, $newDetails);
+
+        $this->assertNotNull($peminjaman);
+        $stokBaik->refresh();
+        $this->assertEquals(3, $stokBaik->jumlah_total);
+        $this->assertEquals(0, $stokBaik->stok_tersedia); // 3 - 3 = 0 available
 
         $this->assertDatabaseHas('detail_peminjaman', [
             'id_peminjaman' => $peminjaman->id,
@@ -206,8 +264,10 @@ class InventoryServiceTest extends TestCase
         $stokBaik->refresh();
         $stokRusakRingan = $barang->stokBarang()->where('kondisi', KondisiBarang::RUSAK_RINGAN)->first();
 
-        $this->assertEquals(9, $stokBaik->jumlah); // 7 + 2 = 9
-        $this->assertEquals(1, $stokRusakRingan->jumlah); // 0 + 1 = 1
+        $this->assertEquals(9, $stokBaik->jumlah_total); // 10 - 1 (that was returned as damaged) = 9
+        $this->assertEquals(9, $stokBaik->stok_tersedia); // 7 + 2 returned baik = 9
+        $this->assertEquals(1, $stokRusakRingan->jumlah_total); // 0 + 1 returned as damaged = 1
+        $this->assertEquals(1, $stokRusakRingan->stok_tersedia); // 0 + 1 returned = 1
     }
 
     public function test_automatically_creates_fine_if_return_is_late()

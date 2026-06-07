@@ -16,9 +16,9 @@ class StokKondisiChart extends ChartWidget
 
     protected function getData(): array
     {
-        $baik = (int) StokBarang::where('kondisi', KondisiBarang::BAIK)->sum('jumlah');
-        $rusakRingan = (int) StokBarang::where('kondisi', KondisiBarang::RUSAK_RINGAN)->sum('jumlah');
-        $rusakBerat = (int) StokBarang::where('kondisi', KondisiBarang::RUSAK_BERAT)->sum('jumlah');
+        $baik = (int) StokBarang::where('kondisi', KondisiBarang::BAIK)->sum('jumlah_total');
+        $rusakRingan = (int) StokBarang::where('kondisi', KondisiBarang::RUSAK_RINGAN)->sum('jumlah_total');
+        $rusakBerat = (int) StokBarang::where('kondisi', KondisiBarang::RUSAK_BERAT)->sum('jumlah_total');
 
         return [
             'datasets' => [

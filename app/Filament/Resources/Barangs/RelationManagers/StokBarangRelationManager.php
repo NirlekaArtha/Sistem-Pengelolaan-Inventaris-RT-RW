@@ -27,13 +27,27 @@ class StokBarangRelationManager extends RelationManager
                     ->label('Kondisi Barang')
                     ->badge(),
 
-                TextColumn::make('jumlah')
-                    ->label('Jumlah')
+                TextColumn::make('jumlah_total')
+                    ->label('Total Fisik')
                     ->numeric()
                     ->sortable()
                     ->badge()
-                    ->color('info')
-                    ->suffix(' unit'),
+                    ->color('gray')
+                    ->suffix(' unit')
+                    ->tooltip('Total unit yang dimiliki (termasuk yang sedang dipinjam)'),
+
+                TextColumn::make('stok_tersedia')
+                    ->label('Stok Tersedia')
+                    ->numeric()
+                    ->sortable()
+                    ->badge()
+                    ->color(fn ($state) => match(true) {
+                        $state <= 0  => 'danger',
+                        $state <= 3  => 'warning',
+                        default      => 'success',
+                    })
+                    ->suffix(' unit')
+                    ->tooltip('Unit yang tersedia untuk dipinjam saat ini'),
 
                 TextColumn::make('updated_at')
                     ->label('Terakhir Diperbarui')

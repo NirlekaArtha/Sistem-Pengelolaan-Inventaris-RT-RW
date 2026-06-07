@@ -34,9 +34,9 @@ class BarangsTable
                     ->alignCenter(),
 
                 TextColumn::make('stok_baik')
-                    ->label('Baik')
+                    ->label('Tersedia (Baik)')
                     ->getStateUsing(fn (Barang $record) =>
-                        $record->stokBarang()->where('kondisi', KondisiBarang::BAIK)->value('jumlah') ?? 0
+                        $record->stokBarang()->where('kondisi', KondisiBarang::BAIK)->value('stok_tersedia') ?? 0
                     )
                     ->numeric()
                     ->badge()
@@ -44,9 +44,9 @@ class BarangsTable
                     ->alignCenter(),
 
                 TextColumn::make('stok_rusak_ringan')
-                    ->label('Rusak Ringan')
+                    ->label('Tersedia (Rusak Ringan)')
                     ->getStateUsing(fn (Barang $record) =>
-                        $record->stokBarang()->where('kondisi', KondisiBarang::RUSAK_RINGAN)->value('jumlah') ?? 0
+                        $record->stokBarang()->where('kondisi', KondisiBarang::RUSAK_RINGAN)->value('stok_tersedia') ?? 0
                     )
                     ->numeric()
                     ->badge()
@@ -54,9 +54,9 @@ class BarangsTable
                     ->alignCenter(),
 
                 TextColumn::make('stok_rusak_berat')
-                    ->label('Rusak Berat')
+                    ->label('Tersedia (Rusak Berat)')
                     ->getStateUsing(fn (Barang $record) =>
-                        $record->stokBarang()->where('kondisi', KondisiBarang::RUSAK_BERAT)->value('jumlah') ?? 0
+                        $record->stokBarang()->where('kondisi', KondisiBarang::RUSAK_BERAT)->value('stok_tersedia') ?? 0
                     )
                     ->numeric()
                     ->badge()

@@ -61,21 +61,23 @@ class PengembalianService
                     'jumlah_kembali_rusak_berat' => $rusakBerat,
                 ]);
 
-                // Update masing-masing stok kondisi
-                $idBarang = $detail->stokBarang->id_barang;
+                // Kembalikan stok_tersedia ke kondisi masing-masing
+                // Jika kondisi kembali != kondisi asal, jumlah_total juga disesuaikan
+                $originalStok  = $detail->stokBarang;
+                $idBarang      = $originalStok->id_barang;
                 $keteranganLog = "Pengembalian #{$peminjaman->id} oleh warga ID {$peminjaman->id_warga}";
 
                 if ($baik > 0) {
                     $stokBaik = StokBarang::where('id_barang', $idBarang)->where('kondisi', KondisiBarang::BAIK)->first();
-                    $this->stokService->tambahStok($stokBaik, $baik, $keteranganLog);
+                    $this->stokService->kembalikanStok($originalStok, $stokBaik, $baik, $keteranganLog);
                 }
                 if ($rusakRingan > 0) {
                     $stokRusakRingan = StokBarang::where('id_barang', $idBarang)->where('kondisi', KondisiBarang::RUSAK_RINGAN)->first();
-                    $this->stokService->tambahStok($stokRusakRingan, $rusakRingan, $keteranganLog);
+                    $this->stokService->kembalikanStok($originalStok, $stokRusakRingan, $rusakRingan, $keteranganLog);
                 }
                 if ($rusakBerat > 0) {
                     $stokRusakBerat = StokBarang::where('id_barang', $idBarang)->where('kondisi', KondisiBarang::RUSAK_BERAT)->first();
-                    $this->stokService->tambahStok($stokRusakBerat, $rusakBerat, $keteranganLog);
+                    $this->stokService->kembalikanStok($originalStok, $stokRusakBerat, $rusakBerat, $keteranganLog);
                 }
             }
 

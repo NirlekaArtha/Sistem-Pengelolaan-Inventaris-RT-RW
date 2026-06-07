@@ -31,9 +31,9 @@ class EditBarang extends EditRecord
     {
         $barang = $this->getRecord();
 
-        $data['stok_baik']         = $barang->stokBarang()->where('kondisi', KondisiBarang::BAIK)->value('jumlah') ?? 0;
-        $data['stok_rusak_ringan'] = $barang->stokBarang()->where('kondisi', KondisiBarang::RUSAK_RINGAN)->value('jumlah') ?? 0;
-        $data['stok_rusak_berat']  = $barang->stokBarang()->where('kondisi', KondisiBarang::RUSAK_BERAT)->value('jumlah') ?? 0;
+        $data['stok_baik']         = $barang->stokBarang()->where('kondisi', KondisiBarang::BAIK)->value('jumlah_total') ?? 0;
+        $data['stok_rusak_ringan'] = $barang->stokBarang()->where('kondisi', KondisiBarang::RUSAK_RINGAN)->value('jumlah_total') ?? 0;
+        $data['stok_rusak_berat']  = $barang->stokBarang()->where('kondisi', KondisiBarang::RUSAK_BERAT)->value('jumlah_total') ?? 0;
 
         return $data;
     }
@@ -58,18 +58,25 @@ class EditBarang extends EditRecord
                 'jumlah_total' => $jumlahTotal,
             ]);
 
-            foreach ($stokBaru as $kondisi => $jumlahBaru) {
+            foreach ($stokBaru as $kondisi => $jumlahTotalBaru) {
                 $stok = StokBarang::firstOrCreate(
                     ['id_barang' => $record->id, 'kondisi' => $kondisi],
-                    ['jumlah' => 0]
+                    ['jumlah_total' => 0, 'stok_tersedia' => 0]
                 );
 
-                $jumlahLama = $stok->jumlah;
-                $selisih    = $jumlahBaru - $jumlahLama;
+                $jumlahTotalLama = $stok->jumlah_total;
+                $selisih         = $jumlahTotalBaru - $jumlahTotalLama;
 
                 if ($selisih === 0) continue;
 
-                $stok->update(['jumlah' => $jumlahBaru]);
+                // Sesuaikan stok_tersedia dengan selisih yang sama
+                // (admin menambah/mengurangi unit fisik, ketersediaan ikut berubah)
+                $stokTersediaBaru = max(0, $stok->stok_tersedia + $selisih);
+
+                $stok->update([
+                    'jumlah_total'  => $jumlahTotalBaru,
+                    'stok_tersedia' => $stokTersediaBaru,
+                ]);
 
                 // Catat log perubahan stok
                 LogBarang::create([

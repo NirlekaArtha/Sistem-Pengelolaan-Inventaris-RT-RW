@@ -48,9 +48,10 @@ class CreateBarang extends CreateRecord
             foreach ($stokList as $kondisi => $jumlah) {
                 $stok = StokBarang::updateOrCreate([
                     "id_barang" => $barang->id,
-                    "kondisi" => $kondisi,
+                    "kondisi"   => $kondisi,
                 ], [
-                    "jumlah" => $jumlah,
+                    "jumlah_total"   => $jumlah,
+                    "stok_tersedia"  => $jumlah, // stok_tersedia = jumlah_total saat pertama dibuat
                 ]);
 
                 // Catat log masuk jika ada stok awal

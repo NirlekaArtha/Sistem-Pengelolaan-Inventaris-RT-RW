@@ -82,15 +82,14 @@ class PeminjamanForm
                                             ->required()
                                             ->live()
                                             ->placeholder("Pilih barang...")
-                                            ->afterStateUpdated(
-                                                fn(
-                                                    $state,
-                                                    callable $set,
-                                                ) => $set(
-                                                    "id_stok_barang",
-                                                    null,
-                                                ),
-                                            )
+                                            ->afterStateUpdated(function (
+                                                $state,
+                                                callable $set,
+                                            ) {
+                                                $set("id_stok_barang", null);
+                                                $set("kondisi", null);
+                                                $set("stok_tersedia", 0);
+                                            })
                                             ->columnSpan(2),
 
                                         Select::make("kondisi")
@@ -108,6 +107,7 @@ class PeminjamanForm
                                                 $state,
                                                 callable $get,
                                                 callable $set,
+                                                $livewire = null,
                                             ) {
                                                 $barangId = $get("id_barang");
                                                 if ($barangId && $state) {
@@ -125,9 +125,23 @@ class PeminjamanForm
                                                             "id_stok_barang",
                                                             $stok->id,
                                                         );
+                                                        
+                                                        $stokTersedia = $stok->stok_tersedia;
+                                                        if ($livewire && method_exists($livewire, 'getRecord')) {
+                                                            $record = $livewire->getRecord();
+                                                            if ($record && $record->exists) {
+                                                                $originalDetail = $record->detailPeminjaman()
+                                                                    ->where('id_stok_barang', $stok->id)
+                                                                    ->first();
+                                                                if ($originalDetail) {
+                                                                    $stokTersedia += $originalDetail->jumlah;
+                                                                }
+                                                            }
+                                                        }
+                                                        
                                                         $set(
                                                             "stok_tersedia",
-                                                            $stok->jumlah,
+                                                            $stokTersedia,
                                                         );
                                                     } else {
                                                         $set(

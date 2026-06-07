@@ -28,7 +28,8 @@ class StokBarangFactory extends Factory
                 KondisiBarang::RUSAK_RINGAN,
                 KondisiBarang::RUSAK_BERAT,
             ]),
-            "jumlah" => rand(5, 50),
+            "jumlah_total" => $jumlah = rand(5, 50),
+            "stok_tersedia" => $jumlah,
         ];
     }
 }

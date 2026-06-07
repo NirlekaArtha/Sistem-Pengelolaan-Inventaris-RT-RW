@@ -16,7 +16,8 @@ class StokBarang extends Model
     protected $fillable = [
         'id_barang',
         'kondisi',
-        'jumlah',
+        'jumlah_total',
+        'stok_tersedia',
     ];
 
     protected $casts = [
