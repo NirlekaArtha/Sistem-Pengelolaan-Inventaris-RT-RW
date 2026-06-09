@@ -23,7 +23,7 @@ class BarangsTable
                     ->searchable()
                     ->sortable()
                     ->weight(FontWeight::SemiBold)
-                    ->description(fn (Barang $record): string => $record->keterangan ?? '-'),
+                    ->description(fn (Barang $record): string => str($record->keterangan ?? 'Tidak ada keterangan')->limit(28)),
 
                 TextColumn::make('jumlah_total')
                     ->label('Total Stok')
